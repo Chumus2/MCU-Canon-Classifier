@@ -28,3 +28,12 @@ def normalize_row(row):
         return float(num) / float(denom) * 10
     else:
         return float(value)
+
+
+def normalize_genres(genre_str, synonyms):
+    parts = [g.strip() for g in genre_str.split(",")]
+    normalized = []
+    for p in parts:
+        replacement = synonyms.get(p, p)
+        normalized.extend(r.strip() for r in replacement.split(","))
+    return list(set(normalized))
