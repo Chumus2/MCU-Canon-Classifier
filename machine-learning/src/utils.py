@@ -1,3 +1,4 @@
+import joblib
 import numpy as np
 import pandas as pd
 from pathlib import Path
@@ -5,11 +6,16 @@ from pathlib import Path
 
 def load_data(path: str) -> pd.DataFrame:
     data_path = Path(path)
-
     if not data_path.exists():
         raise FileNotFoundError(f'{data_path} does not exist')
-
     return pd.read_csv(data_path)
+
+
+def load_model(path: str):
+    model_path = Path(path)
+    if not model_path.exists():
+        raise FileNotFoundError(f'{model_path} does not exist')
+    return joblib.load(model_path)
 
 
 def normalize_row(row):
