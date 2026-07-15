@@ -1,0 +1,143 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MCU Canon Classifier</title>
+  <link rel="stylesheet" href="{% static 'stylesheets/main.css' %}">
+  <link rel="icon" href="{% static 'images/icon.png' %}">
+</head>
+<body>
+  <h1>MCU Canon Classifier</h1>
+
+  <p>
+    Enter the movie or series data, then get a canon prediction in the Marvel style.
+  </p>
+
+  <h2>Form</h2>
+  <form method="post">
+    {% csrf_token %}
+    <p>
+      <label for="runtime_min">Runtime min:</label><br>
+      <input type="number" step="any" id="runtime_min" name="runtime_min" value="{{ values.runtime_min }}">
+      {% if field_errors.runtime_min %}<br><small>{{ field_errors.runtime_min }}</small>{% endif %}
+    </p>
+    <p>
+      <label for="year">Year:</label><br>
+      <input type="number" id="year" name="year" value="{{ values.year }}">
+      {% if field_errors.year %}<br><small>{{ field_errors.year }}</small>{% endif %}
+    </p>
+    <p>
+      <label for="age_years">Age years:</label><br>
+      <input type="number" id="age_years" name="age_years" value="{{ values.age_years }}">
+      {% if field_errors.age_years %}<br><small>{{ field_errors.age_years }}</small>{% endif %}
+    </p>
+    <p>
+      <label for="is_animated">Is animated:</label><br>
+      <select id="is_animated" name="is_animated">
+        <option value="0" {% if values.is_animated == "0" %}selected{% endif %}>No</option>
+        <option value="1" {% if values.is_animated == "1" %}selected{% endif %}>Yes</option>
+      </select>
+      {% if field_errors.is_animated %}<br><small>{{ field_errors.is_animated }}</small>{% endif %}
+    </p>
+    <p>
+      <label for="is_tv_series">Is TV series:</label><br>
+      <select id="is_tv_series" name="is_tv_series">
+        <option value="0" {% if values.is_tv_series == "0" %}selected{% endif %}>No</option>
+        <option value="1" {% if values.is_tv_series == "1" %}selected{% endif %}>Yes</option>
+      </select>
+      {% if field_errors.is_tv_series %}<br><small>{{ field_errors.is_tv_series }}</small>{% endif %}
+    </p>
+    <p>
+      <label for="budget_log">Budget log:</label><br>
+      <input type="number" step="any" id="budget_log" name="budget_log" value="{{ values.budget_log }}">
+      {% if field_errors.budget_log %}<br><small>{{ field_errors.budget_log }}</small>{% endif %}
+    </p>
+    <p>
+      <label for="revenue_log">Revenue log:</label><br>
+      <input type="number" step="any" id="revenue_log" name="revenue_log" value="{{ values.revenue_log }}">
+      {% if field_errors.revenue_log %}<br><small>{{ field_errors.revenue_log }}</small>{% endif %}
+    </p>
+    <p>
+      <label for="box_office_log">Box office log:</label><br>
+      <input type="number" step="any" id="box_office_log" name="box_office_log" value="{{ values.box_office_log }}">
+      {% if field_errors.box_office_log %}<br><small>{{ field_errors.box_office_log }}</small>{% endif %}
+    </p>
+    <p>
+      <label for="imdb_votes">IMDb votes:</label><br>
+      <input type="number" step="any" id="imdb_votes" name="imdb_votes" value="{{ values.imdb_votes }}">
+      {% if field_errors.imdb_votes %}<br><small>{{ field_errors.imdb_votes }}</small>{% endif %}
+    </p>
+    <p>
+      <label for="tmdb_votes">TMDB votes:</label><br>
+      <input type="number" step="any" id="tmdb_votes" name="tmdb_votes" value="{{ values.tmdb_votes }}">
+      {% if field_errors.tmdb_votes %}<br><small>{{ field_errors.tmdb_votes }}</small>{% endif %}
+    </p>
+    <p>
+      <label for="popularity">Popularity:</label><br>
+      <input type="number" step="any" id="popularity" name="popularity" value="{{ values.popularity }}">
+      {% if field_errors.popularity %}<br><small>{{ field_errors.popularity }}</small>{% endif %}
+    </p>
+    <p>
+      <label for="IMDb">IMDb rating:</label><br>
+      <input type="number" step="any" id="IMDb" name="IMDb" value="{{ values.IMDb }}">
+      {% if field_errors.IMDb %}<br><small>{{ field_errors.IMDb }}</small>{% endif %}
+    </p>
+    <p>
+      <label for="Metacritic">Metacritic:</label><br>
+      <input type="number" step="any" id="Metacritic" name="Metacritic" value="{{ values.Metacritic }}">
+      {% if field_errors.Metacritic %}<br><small>{{ field_errors.Metacritic }}</small>{% endif %}
+    </p>
+    <p>
+      <label for="Rotten_Tomatoes">Rotten Tomatoes:</label><br>
+      <input type="number" step="any" id="Rotten_Tomatoes" name="Rotten_Tomatoes" value="{{ values.Rotten_Tomatoes }}">
+      {% if field_errors.Rotten_Tomatoes %}<br><small>{{ field_errors.Rotten_Tomatoes }}</small>{% endif %}
+    </p>
+    <p>
+      <label for="TMDB">TMDB rating:</label><br>
+      <input type="number" step="any" id="TMDB" name="TMDB" value="{{ values.TMDB }}">
+      {% if field_errors.TMDB %}<br><small>{{ field_errors.TMDB }}</small>{% endif %}
+    </p>
+    <p>
+      <button type="submit">Send</button>
+    </p>
+  </form>
+
+  {% if error %}
+    <h2>Error</h2>
+    <p>{{ error }}</p>
+  {% endif %}
+
+  {% if result is not None %}
+    <section id="result" class="result-panel" tabindex="-1">
+      <h2>Result</h2>
+      <div class="result-badge">
+        {% if result == 1 %}
+          Canon
+        {% else %}
+          Not canon
+        {% endif %}
+      </div>
+      <p class="result-text">
+        Chance: <strong>{{ probability_percent|floatformat:2 }}%</strong>
+      </p>
+    </section>
+  {% endif %}
+
+  <script>
+    window.addEventListener("load", function () {
+      const resultBlock = document.getElementById("result");
+      if (!resultBlock) {
+        return;
+      }
+
+      setTimeout(function () {
+        const top = resultBlock.getBoundingClientRect().top + window.scrollY - 24;
+        window.scrollTo({ top, behavior: "smooth" });
+        resultBlock.focus({ preventScroll: true });
+      }, 120);
+    });
+  </script>
+</body>
+</html>

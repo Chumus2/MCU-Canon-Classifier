@@ -1,5 +1,12 @@
-import joblib
+from pathlib import Path
+import sys
+
 import pandas as pd
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+MACHINE_LEARNING_DIR = BASE_DIR / "machine-learning"
+if str(MACHINE_LEARNING_DIR) not in sys.path:
+    sys.path.insert(0, str(MACHINE_LEARNING_DIR))
 
 from src.utils import load_model
 
@@ -16,7 +23,7 @@ app = FastAPI(
 
 # loaded once at startup, not on every request - model.pkl holds
 # {"model": ..., "threshold": ..., "feature_names": [...]}
-artifact = load_model("../machine-learning/models/model.pkl")
+artifact = load_model(MACHINE_LEARNING_DIR / "models" / "model.pkl")
 model = artifact["model"]
 threshold = artifact["threshold"]
 feature_names = artifact["feature_names"]
@@ -54,14 +61,17 @@ def root():
 
 @app.post("/predict", response_model=PredictionResponse)
 def predict(features: Movie_Features):
-    input_dict = features.dict(by_alias=True)
+    input_dict = features.dict()
+    if "Rotten Tomatoes" not in input_dict and "Rotten_Tomatoes" in input_dict:
+        input_dict["Rotten Tomatoes"] = input_dict["Rotten_Tomatoes"]
 
-    # build a single-row DataFrame with columns in the exact order the model expects;
-    # missing/extra fields would silently misalign features otherwise
-    try:
-        row = pd.DataFrame([[input_dict[col] for col in feature_names]], columns=feature_names)
-    except KeyError as e:
-        raise HTTPException(status_code=422, detail=f"Missing required column {e}")
+    # Build a single-row DataFrame in the exact order the model expects.
+    # Any feature not provided by the frontend is treated as 0 so the sparse
+    # Django form can still work with the full trained feature set.
+    row = pd.DataFrame(
+        [[input_dict.get(col, 0) for col in feature_names]],
+        columns=feature_names,
+    )
 
     proba = model.predict_proba(row)[:, 1][0]
     prediction = int(proba >= threshold)
