@@ -1,0 +1,16 @@
+services:
+  api:
+    build: ./Api
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./machine_learning/models:/machine_learning/models
+
+  app:
+    build: ./app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - api
+    env_file:
+      - ./app/.env
