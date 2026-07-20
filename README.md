@@ -101,7 +101,7 @@ MCU-Canon-Classifier/
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/<your-username>/MCU-Canon-Classifier.git
+git clone https://github.com/<your-username>/MCU-Canon-Classifier.git](https://github.com/Chumus2/MCU-Canon-Classifier.git
 cd MCU-Canon-Classifier
 ```
 
